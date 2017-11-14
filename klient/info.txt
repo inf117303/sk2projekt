@@ -1,0 +1,3 @@
+Klient komunikatora typu GG.
+Jêzyk: C#
+Platforma: Windows (.NET)

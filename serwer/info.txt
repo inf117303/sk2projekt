@@ -1,0 +1,3 @@
+Serwer komunikatora typu GG.
+Jêzyk: C++
+Platforma: Linux

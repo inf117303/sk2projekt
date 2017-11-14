@@ -1,0 +1,10 @@
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\bin\Debug\KomunikatorKlient.exe.config
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\bin\Debug\KomunikatorKlient.exe
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\bin\Debug\KomunikatorKlient.pdb
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.csprojResolveAssemblyReference.cache
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.Form1.resources
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.Properties.Resources.resources
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.csproj.GenerateResource.Cache
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.csproj.CoreCompileInputs.cache
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.exe
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.pdb
