@@ -2,25 +2,34 @@ Komunikator typu GG
 Protokół komunikacyjny
 
 === Podstawowe informacje techniczne ===
-Serwer oraz klient ustanawiaja połączenie i komunikują się na porcie 5501. Komunikacja odbywa się za pomocą wymiany łańcuchów tekstowych (string). Przesyłane dane są sformatowane jako JSON.
+Serwer oraz klient ustanawiaja połączenie i komunikują się na porcie 5501. Komunikacja odbywa się za pomocą wymiany łańcuchów tekstowych (string). Przesyłane dane są sformatowane jako JSON. Komunikat JSON jest w tym przypadku pojedynczym obiektem składającym się z 4 pól tekstowych, tj. recipient, sender, type, content.
 
 === Rejestracja nowego użytkownika ===
 Serwer nasłuchuje nowych rejestracji. Klient wysyła do serwera żądanie uzyskania nowego numeru użytkownika oraz załącza wybrane hasło.
-{ "recipient": 0, "sender": null, "type": "registration_request", "content": "WYBRANE_HASŁO" }
+{ "recipient": "0", "sender": null, "type": "registration_request", "content": "WYBRANE_HASŁO" }
 Serwer posiada tablicę zajętych numerów oraz przypisanych im haseł i przydziela kolejny dostępny. Informacja o zarejestrowanych użytkownikach trzymana jest w zewnętrznym pliku tekstowym. Serwer posiada specjalny numer użytkownika 0, klienci od 1 w górę. Zwrotnie serwer wysyła do klienta informację o udanej rejestracji oraz nadany numer użytkownika.
-{ "recipient": null, "sender": 0, "type": "registration_success", "content": NOWY_NUMER }
+{ "recipient": null, "sender": "0", "type": "registration_success", "content": "NOWY_NUMER" }
 
-=== Logowanie użytkownika ===
+=== Zalogowanie użytkownika ===
 Użytkownik, który jest już zarejestrowany może się zalogować. W tym celu przesyła do serwera komunikat z numerem i hasłem.
 { "recipient": 0, "sender": NUMER_UŻYTKOWNIKA, "type": "login_request", "content": "HASŁO_UŻYTKOWNIKA" }
 Serwer sprawdza, czy dany numer istnieje oraz czy hasło jest zgodne z zapisanym. Następnie przesyła do klienta stosowną informację zwrotną:
-{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "login_success", "content": null }
-{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "login_failed", "content": "OPIS_BŁEDU" }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": 0, "type": "login_success", "content": null }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": 0, "type": "login_failed", "content": "OPIS_BŁĘDU" }
+Serwer przechowuje informację o aktualnie zalogowanych użytkownikach. Tylko użytkownik, który jest zalogowany może wysyłać wiadomości.
+
+=== Wylogowanie użytkownika ===
+Użytkownik może się wylogować z serwera, wybierając odpowiednią opcję w kliencie. Traci wtedy możliwośc pisania wiadomości. Komunikat do serwera informujący o żądaniu wylogowania:
+{ "recipient": 0, "sender": NUMER_UŻYTKOWNIKA, "type": "logout_request", "content": "HASŁO_UŻYTKOWNIKA" }
+Serwer po sprawdzeniu poprawnośći danych wysyła odpowiednią odpowiedź:
+{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "logout_success", "content": null }
+{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "logout_failed", "content": "OPIS_BŁĘDU" }
+Gdy użytkownik jest nieaktywny powyżej 10 minut (nie wysyła wiadomości), następuje jego automatyczne wylogowanie.
 
 === Rozmowa ===
 Serwer i klient (klienci) nasłuchują wiadomości. Klient wysyła do serwera wiadomość jako łańcuch tekstowy (string) w formacie JSON. Komunikat ten zawiera numer nadawcy, właściwą wiadomość oraz numer odbiorcy.
-{ "recipient": NUMER_ODBIORCY, "sender": NUMER_NADAWCY, "type": "message", "content": "TREŚĆ_WIADOMOŚCI" }
+{ "recipient": "NUMER_ODBIORCY", "sender": NUMER_NADAWCY, "type": "message", "content": "TREŚĆ_WIADOMOŚCI" }
 Serwer sprawdza, czy nadawca jest zalogowany, następnie czy odbiorca istnieje i jest zalogowany. Jeśli wszystkie testy wypadną pomyślnie, wiadomość jest przekazywana do odbiorcy.
-{ "recipient": NUMER_ODBIORCY, "sender": NUMER_NADAWCY, "type": "message", "content": "TREŚĆ_WIADOMOŚCI" }
-W przeciwnym razie nadawca otrzymuje komunikat o błędzie.
-{ "recipient": NUMER_NADAWCY, "sender": 0, "type": "error", "content": "OPIS_BŁĘDU" }
+{ "recipient": "NUMER_ODBIORCY", "sender": NUMER_NADAWCY, "type": "message", "content": "TREŚĆ_WIADOMOŚCI" }
+W przeciwnym razie nadawca otrzymuje komunikat o błędzie, z którego może np. dowiedzieć się, że odbiorca w tej chwili nie jest zalogowany.
+{ "recipient": "NUMER_NADAWCY", "sender": "0", "type": "error", "content": "OPIS_BŁĘDU" }

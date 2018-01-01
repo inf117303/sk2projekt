@@ -8,3 +8,5 @@ E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Deb
 E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.csproj.CoreCompileInputs.cache
 E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.exe
 E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\obj\Debug\KomunikatorKlient.pdb
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\bin\Debug\Newtonsoft.Json.dll
+E:\Projekty\Studia\sk2projekt\klient\KomunikatorKlient\KomunikatorKlient\bin\Debug\Newtonsoft.Json.xml
