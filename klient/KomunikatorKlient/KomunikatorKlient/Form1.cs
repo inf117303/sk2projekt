@@ -22,43 +22,49 @@ namespace KomunikatorKlient
         private string userNumberText;
         private Socket socket1;
         private bool socketStatus;
+        private string serverIP;
 
         public Form1()
         {
             InitializeComponent();
             string readUserStatus = File.ReadLines("data.txt").ToString();
-            if(readUserStatus == "registered")
-            {
+            if(readUserStatus == "registered") {
                 userStatusText = "zarejestrowany";
                 userRegistered = true;
                 button1.Enabled = false;
+                button2.Enabled = true;
                 button3.Enabled = true;                
             } else {
                 userStatusText = "niezarejestrowany";
                 userRegistered = false;
                 button1.Enabled = true;
+                button2.Enabled = false;
                 button3.Enabled = false;
             }
             string readUserNumber = File.ReadLines("data.txt").ToString();
-            if(readUserNumber != "none" && readUserStatus == "zarejestrowany")
-            {
+            if(readUserNumber != "none" && readUserStatus == "registered") {
                 userNumberText = readUserNumber;
-            } else
-            {
+            } else {
                 userNumberText = "brak";
             }
 
-            button2.Enabled = false;
             label3.Text = userStatusText;
             label4.Text = userNumberText;
 
+            serverIP = "127.0.0.1"; // domyślny adres IP
+
             socketStatus = createNewSocket();
+            if (socketStatus == true) {
+                button5.Enabled = false;
+                label6.Text = "aktywne";
+            } else {
+                label6.Text = "nieaktywne";
+            }            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (socketStatus == true)
-            {
+            if (socketStatus == true) {
                 // wyślij żądanie rejestracji
                 Komunikat rejestracjaZadanie = new Komunikat("0", null, "registration_request", "TrudneHaslo123");
                 string tempjson = JsonConvert.SerializeObject(rejestracjaZadanie);
@@ -72,50 +78,96 @@ namespace KomunikatorKlient
                 int charLen = d.GetChars(buffer, 0, iRx, chars, 0);
                 string recv = new String(chars);
                 Komunikat rejestracjaOdpowiedz = JsonConvert.DeserializeObject<Komunikat>(recv);
-                if(rejestracjaOdpowiedz.type == "registration_success")
-                {
+                if(rejestracjaOdpowiedz.type == "registration_success") {
                     userStatusText = "zarejestrowany";
                     label3.Text = userStatusText;
                     userNumberText = rejestracjaOdpowiedz.content;
                     label4.Text = userNumberText;
                     button1.Enabled = false;
+                    button2.Enabled = true;
                     MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
                 }
-            } else
-            {
-                MessageBox.Show("Nie udało się zarejestrować klienta! Brak połączenia z serwerem.");
+            } else {
+                MessageBox.Show("Brak połączenia z serwerem!\nNie można zarejestrować klienta.");
             }
         }
 
         private bool createNewSocket()
         {
-            bool resultVar;
-            try
-            {
+            try {
                 socket1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                string serverIp = "127.0.0.1";
                 int serverPort = 5501;
-                System.Net.IPAddress ipAddr = System.Net.IPAddress.Parse(serverIp);
+                System.Net.IPAddress ipAddr = System.Net.IPAddress.Parse(serverIP);
                 System.Net.IPEndPoint remoteEP = new IPEndPoint(ipAddr, serverPort);
                 socket1.Connect(remoteEP);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Console.WriteLine("Creating new socket failed!");
                 Console.WriteLine("Exception: {0}", e);
-                resultVar = false;
+                return false;
             }
 
-            if (socket1.Connected == false)
-            {
-                resultVar = false;
-            } else
-            {
-                resultVar = true;
+            if (socket1.Connected == false) {
+                Console.WriteLine("New socket could not be created!");
+                return false;
+            } else {                
                 Console.WriteLine("New socket has been successfully created!");
+                return true;
             }
+        }
 
-            return resultVar;
+        private void button4_Click(object sender, EventArgs e)
+        {
+            bool foundForm = false;
+            foreach (Form f in Application.OpenForms) {
+                if (f is Form2)
+                {
+                    f.Focus();
+                    foundForm = true;
+                }
+            }
+            if(foundForm == false)
+            {
+                Form2 settingsForm = new Form2(this);
+                settingsForm.Show();
+            }            
+        }
+
+        public void setServerIP(string newServerIP)
+        {
+            serverIP = newServerIP;
+        }
+
+        public string getServerIP()
+        {
+            return serverIP;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            socketStatus = createNewSocket();
+            if (socketStatus == true) {
+                button5.Enabled = false;
+                label6.Text = "aktywne";
+                MessageBox.Show("Pomyślnie nawiązano z serwerem.");
+            } else {
+                label6.Text = "nieaktywne";
+                MessageBox.Show("Nie udało nawiązać połączenia z serwerem.");
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bool foundForm = false;
+            foreach (Form f in Application.OpenForms) {
+                if (f is Form3) {
+                    f.Focus();
+                    foundForm = true;
+                }
+            }
+            if (foundForm == false) {
+                Form3 childForm = new Form3(this);
+                childForm.Show();
+            }
         }
     }
 }
