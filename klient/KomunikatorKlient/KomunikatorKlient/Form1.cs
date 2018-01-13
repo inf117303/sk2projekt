@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace KomunikatorKlient
 {
@@ -59,7 +60,9 @@ namespace KomunikatorKlient
                 label6.Text = "aktywne";
             } else {
                 label6.Text = "nieaktywne";
-            }            
+            }
+
+            button2.Enabled = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -68,13 +71,13 @@ namespace KomunikatorKlient
                 // wyślij żądanie rejestracji
                 Komunikat rejestracjaZadanie = new Komunikat("0", null, "registration_request", "TrudneHaslo123");
                 string tempjson = JsonConvert.SerializeObject(rejestracjaZadanie);
-                byte[] byData = System.Text.Encoding.ASCII.GetBytes(tempjson);
+                byte[] byData = Encoding.ASCII.GetBytes(tempjson);
                 socket1.Send(byData);
                 // odczytaj odpowiedź serwera
                 byte[] buffer = new byte[1024];
                 int iRx = socket1.Receive(buffer);
                 char[] chars = new char[iRx];
-                System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
+                Decoder d = Encoding.UTF8.GetDecoder();
                 int charLen = d.GetChars(buffer, 0, iRx, chars, 0);
                 string recv = new String(chars);
                 Komunikat rejestracjaOdpowiedz = JsonConvert.DeserializeObject<Komunikat>(recv);
@@ -85,6 +88,10 @@ namespace KomunikatorKlient
                     label4.Text = userNumberText;
                     button1.Enabled = false;
                     button2.Enabled = true;
+                    using (StreamWriter sw = File.CreateText("data.txt")) {
+                        sw.WriteLine("registered");
+                        sw.WriteLine(userNumberText);
+                    }
                     MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
                 }
             } else {
@@ -92,13 +99,36 @@ namespace KomunikatorKlient
             }
         }
 
+        private void sendDataToSocket(string recipient, string sender, string type, string content) {
+            Komunikat komunikat1 = new Komunikat(recipient, sender, type, content);
+            string tempjson = JsonConvert.SerializeObject(komunikat1);
+            byte[] byData = Encoding.ASCII.GetBytes(tempjson);
+            socket1.Send(byData);
+        }
+
+        private void startListeningFromSocket() {
+            var socketThread = new Thread(() =>
+            {
+                byte[] data = new byte[100];
+                int size = socket1.Receive(data);
+                Console.WriteLine("Recieved data: ");
+                for (int i = 0; i < size; i++)
+                    Console.Write(Convert.ToChar(data[i]));
+
+                Console.WriteLine();
+
+                socket1.Close();
+            });
+            socketThread.Start();
+        }
+
         private bool createNewSocket()
         {
             try {
                 socket1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 int serverPort = 5501;
-                System.Net.IPAddress ipAddr = System.Net.IPAddress.Parse(serverIP);
-                System.Net.IPEndPoint remoteEP = new IPEndPoint(ipAddr, serverPort);
+                IPAddress ipAddr = IPAddress.Parse(serverIP);
+                IPEndPoint remoteEP = new IPEndPoint(ipAddr, serverPort);
                 socket1.Connect(remoteEP);
             } catch (Exception e) {
                 Console.WriteLine("Creating new socket failed!");
