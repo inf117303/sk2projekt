@@ -28,38 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.buttonRejestracja = new System.Windows.Forms.Button();
+            this.buttonRozmowy = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
+            this.buttonLogowanie = new System.Windows.Forms.Button();
+            this.labelUserStatus = new System.Windows.Forms.Label();
+            this.labelUserNumber = new System.Windows.Forms.Label();
+            this.buttonUstawienia = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
+            this.labelConnectionStatus = new System.Windows.Forms.Label();
+            this.buttonPolacz = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonRejestracja
             // 
-            this.button1.Location = new System.Drawing.Point(80, 110);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(125, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Rejestracja";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonRejestracja.Location = new System.Drawing.Point(247, 139);
+            this.buttonRejestracja.Name = "buttonRejestracja";
+            this.buttonRejestracja.Size = new System.Drawing.Size(125, 23);
+            this.buttonRejestracja.TabIndex = 0;
+            this.buttonRejestracja.Text = "Rejestracja";
+            this.buttonRejestracja.UseVisualStyleBackColor = true;
+            this.buttonRejestracja.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // buttonRozmowy
             // 
-            this.button2.Location = new System.Drawing.Point(80, 226);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(125, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Rozmowy";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonRozmowy.Location = new System.Drawing.Point(130, 217);
+            this.buttonRozmowy.Name = "buttonRozmowy";
+            this.buttonRozmowy.Size = new System.Drawing.Size(125, 23);
+            this.buttonRozmowy.TabIndex = 1;
+            this.buttonRozmowy.Text = "Okno rozmowy";
+            this.buttonRozmowy.UseVisualStyleBackColor = true;
+            this.buttonRozmowy.Click += new System.EventHandler(this.button2_Click);
             // 
             // label1
             // 
@@ -79,42 +81,43 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Twój numer:";
             // 
-            // button3
+            // buttonLogowanie
             // 
-            this.button3.Location = new System.Drawing.Point(80, 139);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(125, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Logowanie";
-            this.button3.UseVisualStyleBackColor = true;
+            this.buttonLogowanie.Location = new System.Drawing.Point(247, 107);
+            this.buttonLogowanie.Name = "buttonLogowanie";
+            this.buttonLogowanie.Size = new System.Drawing.Size(125, 23);
+            this.buttonLogowanie.TabIndex = 4;
+            this.buttonLogowanie.Text = "Zaloguj się";
+            this.buttonLogowanie.UseVisualStyleBackColor = true;
+            this.buttonLogowanie.Click += new System.EventHandler(this.buttonLogowanie_Click);
             // 
-            // label3
+            // labelUserStatus
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(92, 28);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "label3";
+            this.labelUserStatus.AutoSize = true;
+            this.labelUserStatus.Location = new System.Drawing.Point(92, 28);
+            this.labelUserStatus.Name = "labelUserStatus";
+            this.labelUserStatus.Size = new System.Drawing.Size(35, 13);
+            this.labelUserStatus.TabIndex = 5;
+            this.labelUserStatus.Text = "label3";
             // 
-            // label4
+            // labelUserNumber
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(82, 47);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 13);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "label4";
+            this.labelUserNumber.AutoSize = true;
+            this.labelUserNumber.Location = new System.Drawing.Point(82, 47);
+            this.labelUserNumber.Name = "labelUserNumber";
+            this.labelUserNumber.Size = new System.Drawing.Size(35, 13);
+            this.labelUserNumber.TabIndex = 6;
+            this.labelUserNumber.Text = "label4";
             // 
-            // button4
+            // buttonUstawienia
             // 
-            this.button4.Location = new System.Drawing.Point(80, 168);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(125, 23);
-            this.button4.TabIndex = 7;
-            this.button4.Text = "Ustawienia";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.buttonUstawienia.Location = new System.Drawing.Point(247, 9);
+            this.buttonUstawienia.Name = "buttonUstawienia";
+            this.buttonUstawienia.Size = new System.Drawing.Size(125, 23);
+            this.buttonUstawienia.TabIndex = 7;
+            this.buttonUstawienia.Text = "Ustawienia";
+            this.buttonUstawienia.UseVisualStyleBackColor = true;
+            this.buttonUstawienia.Click += new System.EventHandler(this.button4_Click);
             // 
             // label5
             // 
@@ -125,41 +128,59 @@
             this.label5.TabIndex = 8;
             this.label5.Text = "Połączenie z serwerem:";
             // 
-            // label6
+            // labelConnectionStatus
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(138, 9);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 13);
-            this.label6.TabIndex = 9;
-            this.label6.Text = "label6";
+            this.labelConnectionStatus.AutoSize = true;
+            this.labelConnectionStatus.Location = new System.Drawing.Point(138, 9);
+            this.labelConnectionStatus.Name = "labelConnectionStatus";
+            this.labelConnectionStatus.Size = new System.Drawing.Size(35, 13);
+            this.labelConnectionStatus.TabIndex = 9;
+            this.labelConnectionStatus.Text = "label6";
             // 
-            // button5
+            // buttonPolacz
             // 
-            this.button5.Location = new System.Drawing.Point(80, 81);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(125, 23);
-            this.button5.TabIndex = 10;
-            this.button5.Text = "Połącz";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.buttonPolacz.Location = new System.Drawing.Point(15, 72);
+            this.buttonPolacz.Name = "buttonPolacz";
+            this.buttonPolacz.Size = new System.Drawing.Size(125, 23);
+            this.buttonPolacz.TabIndex = 10;
+            this.buttonPolacz.Text = "Połącz";
+            this.buttonPolacz.UseVisualStyleBackColor = true;
+            this.buttonPolacz.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(57, 110);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(162, 20);
+            this.textBox1.TabIndex = 11;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 113);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(39, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Hasło:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.label4);
+            this.ClientSize = new System.Drawing.Size(384, 261);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.buttonPolacz);
+            this.Controls.Add(this.labelConnectionStatus);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.buttonUstawienia);
+            this.Controls.Add(this.labelUserNumber);
+            this.Controls.Add(this.labelUserStatus);
+            this.Controls.Add(this.buttonLogowanie);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.buttonRejestracja);
+            this.Controls.Add(this.buttonRozmowy);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -171,17 +192,19 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button buttonRejestracja;
+        private System.Windows.Forms.Button buttonRozmowy;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonLogowanie;
+        private System.Windows.Forms.Label labelUserStatus;
+        private System.Windows.Forms.Label labelUserNumber;
+        private System.Windows.Forms.Button buttonUstawienia;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label labelConnectionStatus;
+        private System.Windows.Forms.Button buttonPolacz;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label3;
     }
 }
 

@@ -17,7 +17,7 @@ namespace KomunikatorKlient
 {
     public partial class Form1 : Form
     {
-        private string userStatusText = "";
+        private bool connectionActive = false;
         private bool userRegistered;
         private bool userLoggedIn;
         private string userNumberText;
@@ -28,96 +28,201 @@ namespace KomunikatorKlient
         public Form1()
         {
             InitializeComponent();
-            string readUserStatus = File.ReadLines("data.txt").ToString();
-            if(readUserStatus == "registered") {
-                userStatusText = "zarejestrowany";
-                userRegistered = true;
-                button1.Enabled = false;
-                button2.Enabled = true;
-                button3.Enabled = true;                
-            } else {
-                userStatusText = "niezarejestrowany";
-                userRegistered = false;
-                button1.Enabled = true;
-                button2.Enabled = false;
-                button3.Enabled = false;
+
+            StreamReader sr = null;
+            string readUserStatus = "";
+            string readUserNumber = "";
+
+            try {
+                sr = new StreamReader("data.txt");
+                readUserStatus = sr.ReadLine();
+                readUserNumber = sr.ReadLine();
+            } catch {
+                // exceptions
+            } finally {
+                if (sr != null) {
+                    sr.Close();
+                }
             }
-            string readUserNumber = File.ReadLines("data.txt").ToString();
+
+            if(readUserStatus == "registered") {
+                userRegistered = true;
+                
+            } else {
+                userRegistered = false;
+                
+            }
+
             if(readUserNumber != "none" && readUserStatus == "registered") {
                 userNumberText = readUserNumber;
             } else {
                 userNumberText = "brak";
             }
 
-            label3.Text = userStatusText;
-            label4.Text = userNumberText;
-
+            labelUserNumber.Text = userNumberText;
             serverIP = "127.0.0.1"; // domyślny adres IP
+            updateClientState();
+        }
 
-            socketStatus = createNewSocket();
-            if (socketStatus == true) {
-                button5.Enabled = false;
-                label6.Text = "aktywne";
+        public void setConnectionActive(bool state) {
+            connectionActive = state;
+        }
+
+        public void setUserLoggedIn(bool state) {
+            userLoggedIn = state;
+        }
+
+        private void updateClientState() {            
+            if(InvokeRequired) {
+                Console.WriteLine("updateClientState method invoked by thread");
+                MethodInvoker inv = delegate {
+                    labelUserNumber.Text = userNumberText;
+                    if (userRegistered) {
+                        buttonRejestracja.Enabled = false;
+                        if (userLoggedIn) {
+                            labelUserStatus.Text = "zarejestrowany, zalogowany";
+                            buttonLogowanie.Enabled = false;
+                            buttonRozmowy.Enabled = true;
+                            textBox1.Text = "*****";
+                            textBox1.Enabled = false;
+                        } else {
+                            labelUserStatus.Text = "zarejestrowany, niezalogowany";
+                            buttonLogowanie.Enabled = true;
+                            buttonRozmowy.Enabled = false;
+                            textBox1.Text = "";
+                            textBox1.Enabled = true;
+                        }
+                    } else {
+                        buttonRejestracja.Enabled = true;
+                        labelUserStatus.Text = "niezarejestrowany";
+                    }
+
+                    if (!connectionActive) {
+                        buttonPolacz.Enabled = true;
+                        buttonRejestracja.Enabled = false;
+                        buttonLogowanie.Enabled = false;
+                        buttonRozmowy.Enabled = false;
+                        labelConnectionStatus.Text = "nieaktywne";
+                        labelConnectionStatus.ForeColor = System.Drawing.Color.Red;
+                    } else {
+                        buttonPolacz.Enabled = false;
+                        labelConnectionStatus.Text = "aktywne";
+                        labelConnectionStatus.ForeColor = System.Drawing.Color.Green;
+                    }
+                };
+                Invoke(inv);
             } else {
-                label6.Text = "nieaktywne";
-            }
+                Console.WriteLine("updateClientState method executed normally");
 
-            button2.Enabled = true;
+                labelUserNumber.Text = userNumberText;
+                if (userRegistered) {
+                    buttonRejestracja.Enabled = false;
+                    if(userLoggedIn) {
+                        labelUserStatus.Text = "zarejestrowany, zalogowany";
+                        buttonLogowanie.Enabled = false;
+                        buttonRozmowy.Enabled = true;
+                        textBox1.Text = "*****";
+                        textBox1.Enabled = false;
+                    } else {
+                        labelUserStatus.Text = "zarejestrowany, niezalogowany";
+                        buttonLogowanie.Enabled = true;
+                        buttonRozmowy.Enabled = false;
+                        textBox1.Text = "";
+                        textBox1.Enabled = true;
+                    }
+                } else {
+                    buttonRejestracja.Enabled = true;
+                    labelUserStatus.Text = "niezarejestrowany";
+                }
+
+                if(!connectionActive) {
+                    buttonPolacz.Enabled = true;
+                    buttonRejestracja.Enabled = false;
+                    buttonLogowanie.Enabled = false;
+                    buttonRozmowy.Enabled = false;
+                    labelConnectionStatus.Text = "nieaktywne";
+                    labelConnectionStatus.ForeColor = System.Drawing.Color.Red;
+                } else {
+                    buttonPolacz.Enabled = false;
+                    labelConnectionStatus.Text = "aktywne";
+                    labelConnectionStatus.ForeColor = System.Drawing.Color.Green;
+                }
+
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (socketStatus == true) {
-                // wyślij żądanie rejestracji
-                Komunikat rejestracjaZadanie = new Komunikat("0", null, "registration_request", "TrudneHaslo123");
-                string tempjson = JsonConvert.SerializeObject(rejestracjaZadanie);
-                byte[] byData = Encoding.ASCII.GetBytes(tempjson);
-                socket1.Send(byData);
-                // odczytaj odpowiedź serwera
-                byte[] buffer = new byte[1024];
-                int iRx = socket1.Receive(buffer);
-                char[] chars = new char[iRx];
-                Decoder d = Encoding.UTF8.GetDecoder();
-                int charLen = d.GetChars(buffer, 0, iRx, chars, 0);
-                string recv = new String(chars);
-                Komunikat rejestracjaOdpowiedz = JsonConvert.DeserializeObject<Komunikat>(recv);
-                if(rejestracjaOdpowiedz.type == "registration_success") {
-                    userStatusText = "zarejestrowany";
-                    label3.Text = userStatusText;
-                    userNumberText = rejestracjaOdpowiedz.content;
-                    label4.Text = userNumberText;
-                    button1.Enabled = false;
-                    button2.Enabled = true;
-                    using (StreamWriter sw = File.CreateText("data.txt")) {
-                        sw.WriteLine("registered");
-                        sw.WriteLine(userNumberText);
-                    }
-                    MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
-                }
-            } else {
-                MessageBox.Show("Brak połączenia z serwerem!\nNie można zarejestrować klienta.");
-            }
+            string haslo = textBox1.Text;
+            sendDataToSocket("0", null, "registration_request", haslo);
+            Console.WriteLine("Registration request has been sent.");
         }
 
         private void sendDataToSocket(string recipient, string sender, string type, string content) {
             Komunikat komunikat1 = new Komunikat(recipient, sender, type, content);
             string tempjson = JsonConvert.SerializeObject(komunikat1);
-            byte[] byData = Encoding.ASCII.GetBytes(tempjson);
+            byte[] byData = Encoding.UTF8.GetBytes(tempjson);
             socket1.Send(byData);
         }
 
         private void startListeningFromSocket() {
             var socketThread = new Thread(() =>
             {
-                byte[] data = new byte[100];
-                int size = socket1.Receive(data);
-                Console.WriteLine("Recieved data: ");
-                for (int i = 0; i < size; i++)
-                    Console.Write(Convert.ToChar(data[i]));
-
-                Console.WriteLine();
-
+                bool connectionProblem = false;
+                Console.WriteLine("Dedicated socket listening thread started!");
+                while (true) {
+                    Thread.Sleep(1000);
+                    try {
+                        byte[] buffer = new byte[512];
+                        int size = socket1.Receive(buffer);
+                        if (size > 0) {
+                            Console.WriteLine("Recieved data: ");
+                            for (int i = 0; i < size; i++) {
+                                Console.Write(Convert.ToChar(buffer[i]));
+                            }
+                            char[] chars = new char[size];
+                            Decoder d = Encoding.UTF8.GetDecoder();
+                            int charLen = d.GetChars(buffer, 0, size, chars, 0);
+                            string recv = new String(chars);
+                            Komunikat komunikatSerwera = JsonConvert.DeserializeObject<Komunikat>(recv);
+                            if (komunikatSerwera.type == "registration_success") {
+                                userRegistered = true;
+                                userNumberText = komunikatSerwera.content;
+                                updateClientState();
+                                using (StreamWriter sw = File.CreateText("data.txt")) {
+                                    sw.WriteLine("registered");
+                                    sw.WriteLine(userNumberText);
+                                }
+                                MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
+                            } else if(komunikatSerwera.type == "login_success") {
+                                setUserLoggedIn(true);
+                                updateClientState();
+                                MessageBox.Show("Logowanie udane.");
+                            } else if (komunikatSerwera.type == "login_failed") {
+                                setUserLoggedIn(false);
+                                updateClientState();
+                                MessageBox.Show("Logowanie nieudane. Upewnij się, że hasło jest wpisane poprawnie i spróbuj jeszcze raz.");
+                            }
+                        } else {
+                            throw new SocketException(System.Convert.ToInt32(SocketError.ConnectionReset));
+                        }
+                    } catch (SocketException e1) {
+                        Console.WriteLine("Connection problem.");
+                        Console.WriteLine("Exception details: {0}", e1);
+                        connectionProblem = true;
+                    } catch (JsonReaderException e2) {
+                        Console.WriteLine("JSON parse error.");
+                        Console.WriteLine("Exception details: {0}", e2);
+                    }
+                    if (connectionProblem == true) {
+                        setConnectionActive(false);
+                        updateClientState();
+                        MessageBox.Show("Utracono połączenie z serwerem.");
+                        break;
+                    }
+                }
                 socket1.Close();
+                Console.WriteLine("Thread stopped.");
             });
             socketThread.Start();
         }
@@ -141,6 +246,8 @@ namespace KomunikatorKlient
                 return false;
             } else {                
                 Console.WriteLine("New socket has been successfully created!");
+                connectionActive = true;
+                updateClientState();
                 return true;
             }
         }
@@ -176,11 +283,12 @@ namespace KomunikatorKlient
         {
             socketStatus = createNewSocket();
             if (socketStatus == true) {
-                button5.Enabled = false;
-                label6.Text = "aktywne";
+                buttonPolacz.Enabled = false;
+                labelConnectionStatus.Text = "aktywne";
+                startListeningFromSocket();
                 MessageBox.Show("Pomyślnie nawiązano z serwerem.");
             } else {
-                label6.Text = "nieaktywne";
+                labelConnectionStatus.Text = "nieaktywne";
                 MessageBox.Show("Nie udało nawiązać połączenia z serwerem.");
             }
         }
@@ -198,6 +306,12 @@ namespace KomunikatorKlient
                 Form3 childForm = new Form3(this);
                 childForm.Show();
             }
+        }
+
+        private void buttonLogowanie_Click(object sender, EventArgs e) {
+            string haslo = textBox1.Text;
+            sendDataToSocket("0", userNumberText, "login_request", haslo);
+            Console.WriteLine("Login request has been sent.");
         }
     }
 }

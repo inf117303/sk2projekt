@@ -12,18 +12,18 @@ Serwer posiada tablicę zajętych numerów oraz przypisanych im haseł i przydzi
 
 === Zalogowanie użytkownika ===
 Użytkownik, który jest już zarejestrowany może się zalogować. W tym celu przesyła do serwera komunikat z numerem i hasłem.
-{ "recipient": 0, "sender": NUMER_UŻYTKOWNIKA, "type": "login_request", "content": "HASŁO_UŻYTKOWNIKA" }
+{ "recipient": "0", "sender": "NUMER_UŻYTKOWNIKA", "type": "login_request", "content": "HASŁO_UŻYTKOWNIKA" }
 Serwer sprawdza, czy dany numer istnieje oraz czy hasło jest zgodne z zapisanym. Następnie przesyła do klienta stosowną informację zwrotną:
-{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": 0, "type": "login_success", "content": null }
-{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": 0, "type": "login_failed", "content": "OPIS_BŁĘDU" }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": "0", "type": "login_success", "content": null }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": "0", "type": "login_failed", "content": "OPIS_BŁĘDU" }
 Serwer przechowuje informację o aktualnie zalogowanych użytkownikach. Tylko użytkownik, który jest zalogowany może wysyłać wiadomości.
 
 === Wylogowanie użytkownika ===
 Użytkownik może się wylogować z serwera, wybierając odpowiednią opcję w kliencie. Traci wtedy możliwośc pisania wiadomości. Komunikat do serwera informujący o żądaniu wylogowania:
-{ "recipient": 0, "sender": NUMER_UŻYTKOWNIKA, "type": "logout_request", "content": "HASŁO_UŻYTKOWNIKA" }
+{ "recipient": "0", "sender": "NUMER_UŻYTKOWNIKA", "type": "logout_request", "content": "HASŁO_UŻYTKOWNIKA" }
 Serwer po sprawdzeniu poprawnośći danych wysyła odpowiednią odpowiedź:
-{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "logout_success", "content": null }
-{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "logout_failed", "content": "OPIS_BŁĘDU" }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": "0", "type": "logout_success", "content": null }
+{ "recipient": "NUMER_UŻYTKOWNIKA", "sender": "0", "type": "logout_failed", "content": "OPIS_BŁĘDU" }
 Gdy użytkownik jest nieaktywny powyżej 10 minut (nie wysyła wiadomości), następuje jego automatyczne wylogowanie.
 
 === Rozmowa ===
