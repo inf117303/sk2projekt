@@ -1,2 +1,2 @@
-﻿registered
-1
+﻿unregistered
+none

@@ -250,11 +250,13 @@ namespace KomunikatorKlient
             } catch (Exception e) {
                 Console.WriteLine("Creating new socket failed!");
                 Console.WriteLine("Exception: {0}", e);
+                socket1.Close();
                 return false;
             }
 
             if (socket1.Connected == false) {
-                Console.WriteLine("New socket could not be created!");
+                socket1.Close();
+                Console.WriteLine("Socket appears to be created but is not responding!");
                 return false;
             } else {                
                 Console.WriteLine("New socket has been successfully created!");
@@ -281,6 +283,7 @@ namespace KomunikatorKlient
 
         private void button5_Click(object sender, EventArgs e)
         {
+            buttonPolacz.Text = "Łączenie, czekaj...";
             socketStatus = createNewSocket();
             if (socketStatus == true) {
                 buttonPolacz.Enabled = false;
@@ -291,6 +294,7 @@ namespace KomunikatorKlient
                 labelConnectionStatus.Text = "nieaktywne";
                 MessageBox.Show("Nie udało nawiązać połączenia z serwerem.");
             }
+            buttonPolacz.Text = "Połącz";
         }
 
         private void button2_Click(object sender, EventArgs e)
