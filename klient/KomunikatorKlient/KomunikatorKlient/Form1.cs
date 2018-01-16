@@ -24,6 +24,7 @@ namespace KomunikatorKlient
         private Socket socket1;
         private bool socketStatus;
         private string serverIP;
+        private Form3 form3handle = null;
 
         public Form1()
         {
@@ -207,6 +208,9 @@ namespace KomunikatorKlient
                                 setUserLoggedIn(false);
                                 updateClientState();
                                 MessageBox.Show("Logowanie nieudane. Upewnij się, że hasło jest wpisane poprawnie i spróbuj jeszcze raz.");
+                            } else if (komunikatSerwera.type == "message") {
+                                openConversationsWindow();
+                                form3handle.parseIncomingMessage(komunikatSerwera.sender, komunikatSerwera.content);
                             }
                         } else {
                             throw new SocketException(System.Convert.ToInt32(SocketError.ConnectionReset));
@@ -218,6 +222,9 @@ namespace KomunikatorKlient
                     } catch (JsonReaderException e2) {
                         Console.WriteLine("JSON parse error.");
                         Console.WriteLine("Exception details: {0}", e2);
+                    } catch (JsonSerializationException e3) {
+                        Console.WriteLine("JSON parse error.");
+                        Console.WriteLine("Exception details: {0}", e3);
                     }
                     if (connectionProblem == true) {
                         setConnectionActive(false);
@@ -259,19 +266,7 @@ namespace KomunikatorKlient
 
         private void button4_Click(object sender, EventArgs e)
         {
-            bool foundForm = false;
-            foreach (Form f in Application.OpenForms) {
-                if (f is Form2)
-                {
-                    f.Focus();
-                    foundForm = true;
-                }
-            }
-            if(foundForm == false)
-            {
-                Form2 settingsForm = new Form2(this);
-                settingsForm.Show();
-            }            
+            openSettingssWindow();   
         }
 
         public void setServerIP(string newServerIP)
@@ -300,17 +295,42 @@ namespace KomunikatorKlient
 
         private void button2_Click(object sender, EventArgs e)
         {
-            bool foundForm = false;
-            foreach (Form f in Application.OpenForms) {
-                if (f is Form3) {
-                    f.Focus();
-                    foundForm = true;
+            openConversationsWindow();
+        }
+
+        private void openConversationsWindow() {
+            MethodInvoker inv = delegate {
+                bool foundForm = false;
+                foreach (Form f in Application.OpenForms) {
+                    if (f is Form3) {
+                        f.Focus();
+                        foundForm = true;
+                    }
                 }
-            }
-            if (foundForm == false) {
-                Form3 childForm = new Form3(this);
-                childForm.Show();
-            }
+                if (foundForm == false) {
+                    Form3 childForm = new Form3(this);
+                    childForm.Show();
+                    form3handle = childForm;
+                }
+            };
+            Invoke(inv);
+        }
+
+        private void openSettingssWindow() {
+            MethodInvoker inv = delegate {
+                bool foundForm = false;
+                foreach (Form f in Application.OpenForms) {
+                    if (f is Form2) {
+                        f.Focus();
+                        foundForm = true;
+                    }
+                }
+                if (foundForm == false) {
+                    Form2 settingsForm = new Form2(this);
+                    settingsForm.Show();
+                }
+            };
+            Invoke(inv);
         }
 
         private void buttonLogowanie_Click(object sender, EventArgs e) {
