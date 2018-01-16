@@ -46,12 +46,15 @@
             this.textBox1.Location = new System.Drawing.Point(12, 12);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox1.Size = new System.Drawing.Size(460, 233);
             this.textBox1.TabIndex = 0;
             // 
             // textBox2
             // 
             this.textBox2.Location = new System.Drawing.Point(12, 251);
+            this.textBox2.MaxLength = 256;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(379, 20);
             this.textBox2.TabIndex = 1;
@@ -77,6 +80,7 @@
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(12, 324);
             this.comboBox1.Name = "comboBox1";
@@ -96,6 +100,7 @@
             // textBox3
             // 
             this.textBox3.Location = new System.Drawing.Point(246, 325);
+            this.textBox3.MaxLength = 8;
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 20);
             this.textBox3.TabIndex = 6;

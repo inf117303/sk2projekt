@@ -72,6 +72,10 @@ namespace KomunikatorKlient
             userLoggedIn = state;
         }
 
+        public string getUserNumber() {
+            return userNumberText;
+        }
+
         private void updateClientState() {            
             if(InvokeRequired) {
                 Console.WriteLine("updateClientState method invoked by thread");
@@ -158,11 +162,12 @@ namespace KomunikatorKlient
             Console.WriteLine("Registration request has been sent.");
         }
 
-        private void sendDataToSocket(string recipient, string sender, string type, string content) {
+        public void sendDataToSocket(string recipient, string sender, string type, string content) {
             Komunikat komunikat1 = new Komunikat(recipient, sender, type, content);
             string tempjson = JsonConvert.SerializeObject(komunikat1);
-            byte[] byData = Encoding.UTF8.GetBytes(tempjson);
+            byte[] byData = Encoding.UTF8.GetBytes(tempjson + "\r\n");
             socket1.Send(byData);
+            Console.WriteLine("Data has been sent to socket.");
         }
 
         private void startListeningFromSocket() {

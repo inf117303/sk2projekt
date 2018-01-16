@@ -37,11 +37,22 @@ namespace KomunikatorKlient
                     rozmowyDict.Add("10", rozmowa);
                 }
             }
+            button1.Enabled = false;
+            button3.Enabled = false;
+            ActiveControl = textBox2;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            string selectedUserNumber = comboBox1.SelectedItem.ToString();
+            string messageContent = textBox2.Text;
+            textBox2.Text = "";
+            textBox1.AppendText("[ Ja ] " + messageContent);
+            textBox1.AppendText(Environment.NewLine);
+            string senderNumber = mainFormHandle.getUserNumber();
+            mainFormHandle.sendDataToSocket(selectedUserNumber, senderNumber, "message", messageContent);
+            writeToHistoryFile(selectedUserNumber, messageContent, false);
+            Console.WriteLine("Message passed to server.");
         }
 
         private void button2_Click(object sender, EventArgs e) {
@@ -68,6 +79,31 @@ namespace KomunikatorKlient
                     textBox1.AppendText(Environment.NewLine);
                 }                
             }
+            button1.Enabled = true;
+            button3.Enabled = true;
+        }
+
+        private void writeToHistoryFile(string userNumber, string message, bool incoming) {
+            string historyFileName = "history_" + userNumber + ".txt";
+            using (StreamWriter sw = File.AppendText(historyFileName)) {                
+                if(incoming) {
+                    message = "[ Użytkownik " + userNumber + " ] " + message;
+                } else {
+                    message = "[ Ja ] " + message;
+                }
+                sw.WriteLine(message);
+            }
+        }
+
+        public void parseIncomingMessage(string senderNumber, string message) {
+            string currentUserNumber = comboBox1.SelectedItem.ToString();
+            if (senderNumber != currentUserNumber) {
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(senderNumber);
+            }
+            message = "[ Użytkownik " + senderNumber + " ] " + message;
+            textBox1.AppendText(message);
+            textBox1.AppendText(Environment.NewLine);
+            writeToHistoryFile(senderNumber, message, true);
         }
     }
 }
