@@ -20,7 +20,7 @@ namespace KomunikatorKlient
         private bool connectionActive = false;
         private bool userRegistered;
         private bool userLoggedIn;
-        private string userNumberText;
+        private string userNumberText = "none";
         private Socket socket1;
         private bool socketStatus;
         private string serverIP;
@@ -38,6 +38,7 @@ namespace KomunikatorKlient
                 sr = new StreamReader("data.txt");
                 readUserStatus = sr.ReadLine();
                 readUserNumber = sr.ReadLine();
+                serverIP = sr.ReadLine();
             } catch {
                 // exceptions
             } finally {
@@ -46,7 +47,7 @@ namespace KomunikatorKlient
                 }
             }
 
-            if(readUserStatus == "registered") {
+            if (readUserStatus == "registered") {
                 userRegistered = true;
                 
             } else {
@@ -61,7 +62,6 @@ namespace KomunikatorKlient
             }
 
             labelUserNumber.Text = userNumberText;
-            serverIP = "127.0.0.1"; // domyślny adres IP
             updateClientState();
         }
 
@@ -159,16 +159,24 @@ namespace KomunikatorKlient
         private void button1_Click(object sender, EventArgs e)
         {
             string haslo = textBox1.Text;
-            sendDataToSocket("0", null, "registration_request", haslo);
-            Console.WriteLine("Registration request has been sent.");
+            if(haslo.Length > 0) {
+                sendDataToSocket("0", null, "registration_request", haslo);
+                Console.WriteLine("Registration request has been sent.");
+            } else {
+                Console.WriteLine("Password not provided.");
+                MessageBox.Show("Aby zarejestrować klienta, musisz nadać hasło.");
+            }            
         }
 
         public void sendDataToSocket(string recipient, string sender, string type, string content) {
             Komunikat komunikat1 = new Komunikat(recipient, sender, type, content);
             string tempjson = JsonConvert.SerializeObject(komunikat1);
             byte[] byData = Encoding.UTF8.GetBytes(tempjson + "\r\n");
-            socket1.Send(byData);
+            socket1.Send(byData);            
             Console.WriteLine("Data has been sent to socket.");
+            for (int i = 0; i < byData.Length; i++) {
+                Console.Write(Convert.ToChar(byData[i]));
+            }
         }
 
         private void startListeningFromSocket() {
@@ -198,7 +206,11 @@ namespace KomunikatorKlient
                                 using (StreamWriter sw = File.CreateText("data.txt")) {
                                     sw.WriteLine("registered");
                                     sw.WriteLine(userNumberText);
-                                }
+                                    sw.WriteLine(serverIP);
+                                    if (sw != null) {
+                                        sw.Close();
+                                    }
+                                }                                
                                 MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
                             } else if(komunikatSerwera.type == "login_success") {
                                 setUserLoggedIn(true);
@@ -274,6 +286,18 @@ namespace KomunikatorKlient
         public void setServerIP(string newServerIP)
         {
             serverIP = newServerIP;
+            using (StreamWriter sw = File.CreateText("data.txt")) {
+                if(userRegistered) {
+                    sw.WriteLine("registered");
+                } else {
+                    sw.WriteLine("unregistered");
+                }                
+                sw.WriteLine(userNumberText);
+                sw.WriteLine(serverIP);
+                if (sw != null) {
+                    sw.Close();
+                }
+            }
         }
 
         public string getServerIP()
@@ -339,8 +363,13 @@ namespace KomunikatorKlient
 
         private void buttonLogowanie_Click(object sender, EventArgs e) {
             string haslo = textBox1.Text;
-            sendDataToSocket("0", userNumberText, "login_request", haslo);
-            Console.WriteLine("Login request has been sent.");
+            if(haslo.Length > 0) {
+                sendDataToSocket("0", userNumberText, "login_request", haslo);
+                Console.WriteLine("Login request has been sent.");
+            } else {
+                Console.WriteLine("Password not provided.");
+                MessageBox.Show("Aby się zalogować, musisz podać hasło.");
+            }            
         }
     }
 }
