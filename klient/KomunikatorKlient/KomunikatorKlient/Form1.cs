@@ -187,13 +187,14 @@ namespace KomunikatorKlient
                 while (true) {
                     Thread.Sleep(1000);
                     try {
-                        byte[] buffer = new byte[512];
+                        byte[] buffer = new byte[1024];
                         int size = socket1.Receive(buffer);
                         if (size > 0) {
                             Console.WriteLine("Recieved data: ");
                             for (int i = 0; i < size; i++) {
                                 Console.Write(Convert.ToChar(buffer[i]));
                             }
+                            Console.WriteLine();
                             char[] chars = new char[size];
                             Decoder d = Encoding.UTF8.GetDecoder();
                             int charLen = d.GetChars(buffer, 0, size, chars, 0);
@@ -211,7 +212,9 @@ namespace KomunikatorKlient
                                         sw.Close();
                                     }
                                 }                                
-                                MessageBox.Show("Pomyślnie zarejestrowano klienta! Twój nowy numer to: " + userNumberText);
+                                MessageBox.Show("Rejestracja udana.\nTwój nowy numer to: " + userNumberText);
+                            } else if (komunikatSerwera.type == "registration_failed") {
+                                MessageBox.Show("Rejestracja nieudana. Szczegóły błędu:\n" + komunikatSerwera.content);
                             } else if(komunikatSerwera.type == "login_success") {
                                 setUserLoggedIn(true);
                                 updateClientState();
@@ -221,8 +224,12 @@ namespace KomunikatorKlient
                                 updateClientState();
                                 MessageBox.Show("Logowanie nieudane. Upewnij się, że hasło jest wpisane poprawnie i spróbuj jeszcze raz.");
                             } else if (komunikatSerwera.type == "message") {
-                                openConversationsWindow();
-                                form3handle.parseIncomingMessage(komunikatSerwera.sender, komunikatSerwera.content);
+                                if(komunikatSerwera.sender == "0") {
+                                    MessageBox.Show("Wiadomość serwera\n:" + komunikatSerwera.content);
+                                } else {
+                                    openConversationsWindow();
+                                    form3handle.parseIncomingMessage(komunikatSerwera.sender, komunikatSerwera.content);
+                                }                                
                             }
                         } else {
                             throw new SocketException(System.Convert.ToInt32(SocketError.ConnectionReset));
