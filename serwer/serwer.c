@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <json.h>
 #define SERVER_PORT 5501
-#define QUEUE_SIZE 5
+#define QUEUE_SIZE 10
 #define MAX_CLIENTS 10
 
 
@@ -271,31 +271,28 @@ void *ThreadBehavior(void *t_data)
         rc = read ((*th_data).deskr, bufor, 1024);
         if(rc > 0) {
           printf("\n(received from client %d): %s\n", (*th_data).deskr, bufor);
-        }
-        //wiadomosc jest przeksztalcana do formatu json
-        jobj = json_tokener_parse(bufor);
-	
-		//obsluga komunikatu
-		pthread_mutex_lock(&lock);
-		outcoming_jobj = obslugaWiadomosci(jobj);
-		pthread_mutex_unlock(&lock);
-	
-		//wiadomosc ladowana jest do bufora
-        memset(bufor,0,sizeof(bufor));
-        strcpy(bufor,json_object_get_string(outcoming_jobj));
+        
+			//wiadomosc jest przeksztalcana do formatu json
+			jobj = json_tokener_parse(bufor);
+		
+			//obsluga komunikatu
+			pthread_mutex_lock(&lock);
+			outcoming_jobj = obslugaWiadomosci(jobj);
+			pthread_mutex_unlock(&lock);
+		
+			//wiadomosc ladowana jest do bufora
+			memset(bufor,0,sizeof(bufor));
+			strcpy(bufor,json_object_get_string(outcoming_jobj));
 
-        //odeslanie wiadomosci do klientow
-        //TODO nie do wszystkich, tylko do konkretnego
-            if(*(tab_deskr) != 0) {
-                write(*(tab_deskr), bufor, 1024);
-                printf("\n(sent to client %d): %s\n", *(tab_deskr), bufor);
-            }
-
+			//odeslanie wiadomosci do klientow
+			//TODO nie do wszystkich, tylko do konkretnego
+			if(*(tab_deskr) != 0) {
+				write(*(tab_deskr), bufor, 1024);
+				printf("\n(sent to client %d): %s\n", *(tab_deskr), bufor);
+			}
+		}
+		sleep(1);
     }
-
-
-
-    //
 
     pthread_exit(NULL);
 }
@@ -382,10 +379,9 @@ int main(int argc, char* argv[])
             descriptors[client_count] = connection_socket_descriptor;
             client_count++;
        }
-
-       
-
+		sleep(1);    
    }
+   
    printf("Wychodze z tej petli chuj wie czemu\n");
    close(server_socket_descriptor);
    pthread_mutex_destroy(&lock);
