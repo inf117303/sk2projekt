@@ -134,7 +134,6 @@ struct json_object * obsluzLogowanie(json_object * jobj){
 }
 
 struct json_object * obsluzWylogowanie(json_object * jobj){
-	//{ "recipient": 0, "sender": NUMER_UŻYTKOWNIKA, "type": "logout_request", "content": "HASŁO_UŻYTKOWNIKA" }
 	json_object * jobjReturn, *jobjFromFile, *jobjToFile;
 	jobjReturn = json_object_new_object();
 	jobjFromFile = json_object_new_object();
@@ -167,7 +166,6 @@ struct json_object * obsluzWylogowanie(json_object * jobj){
 		}
 	}
 	//login lub haslo nie zgadzaja sie;
-	//{ "recipient": NUMER_UŻYTKOWNIKA, "sender": 0, "type": "logout_failed", "content": "OPIS_BŁĘDU" }
 	json_object_object_add(jobjReturn, "recipient", json_object_new_string(login));
 	json_object_object_add(jobjReturn, "sender", json_object_new_string("0"));
 	json_object_object_add(jobjReturn, "type", json_object_new_string("logout_failed"));
@@ -177,7 +175,6 @@ struct json_object * obsluzWylogowanie(json_object * jobj){
 }
 
 struct json_object * obsluzWiadomosc(json_object * jobj){
-	//{ "recipient": "NUMER_ODBIORCY", "sender": NUMER_NADAWCY, "type": "message", "content": "TREŚĆ_WIADOMOŚCI" }
 	json_object * jobjReturn, *jobjFromFile;
 	jobjReturn = json_object_new_object();
 	jobjFromFile = json_object_new_object();
@@ -253,8 +250,7 @@ struct json_object * obslugaWiadomosci(json_object * jobj){
 }
 
 
-//funkcja opisującą zachowanie wątku - musi przyjmować argument typu (void *) i zwracać (void *)
-
+//funkcja opisującą zachowanie wątku
 void *ThreadBehavior(void *t_data)
 {
     pthread_detach(pthread_self());
@@ -267,8 +263,8 @@ void *ThreadBehavior(void *t_data)
     int* tab_deskr = (*th_data).tab_deskr;
     printf("\nNew connection (descr.): %d\n", (*th_data).deskr);
     while(1) {
-        // czytaj wiadomość od klienta
-        rc = read ((*th_data).deskr, bufor, 1024);
+        rc = read ((*th_data).deskr, bufor, 1024); //odczytaj dane do bufora
+		pthread_mutex_lock(&lock); //zamknij mutex
         if(rc > 0) {
           printf("\n(received from client %d): %s\n", (*th_data).deskr, bufor);
         
@@ -276,11 +272,8 @@ void *ThreadBehavior(void *t_data)
 			jobj = json_tokener_parse(bufor);
 		
 			//obsluga komunikatu
-			pthread_mutex_lock(&lock);
 			outcoming_jobj = obslugaWiadomosci(jobj);
-			pthread_mutex_unlock(&lock);
-		
-			//wiadomosc ladowana jest do bufora
+			//bufor jest czyszczony iwiadomosc ladowana jest do bufora
 			memset(bufor,0,sizeof(bufor));
 			strcpy(bufor,json_object_get_string(outcoming_jobj));
 
@@ -290,7 +283,10 @@ void *ThreadBehavior(void *t_data)
 				write(*(tab_deskr), bufor, 1024);
 				printf("\n(sent to client %d): %s\n", *(tab_deskr), bufor);
 			}
+		memset(bufor,0,sizeof(bufor));
+
 		}
+		pthread_mutex_unlock(&lock);	
 		sleep(1);
     }
 
@@ -382,7 +378,6 @@ int main(int argc, char* argv[])
 		sleep(1);    
    }
    
-   printf("Wychodze z tej petli chuj wie czemu\n");
    close(server_socket_descriptor);
    pthread_mutex_destroy(&lock);
    return(0);
