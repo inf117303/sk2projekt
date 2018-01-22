@@ -47,9 +47,9 @@ namespace KomunikatorKlient
         private void button1_Click(object sender, EventArgs e)
         {
             string selectedUserNumber = comboBox1.SelectedItem.ToString();
-            string messageContent = "[ Ja ] " + textBox2.Text;
+            string messageContent = textBox2.Text;
             textBox2.Text = "";
-            textBox1.AppendText(messageContent);
+            textBox1.AppendText("[ Ja ] " + messageContent);
             textBox1.AppendText(Environment.NewLine);
             string senderNumber = mainFormHandle.getUserNumber();
             mainFormHandle.sendDataToSocket(selectedUserNumber, senderNumber, "message", messageContent);
@@ -58,7 +58,7 @@ namespace KomunikatorKlient
                 biezacaRozmowa.Add(messageContent);
                 rozmowyDict[senderNumber] = biezacaRozmowa;
             }
-            writeToHistoryFile(selectedUserNumber, messageContent);
+            writeToHistoryFile(selectedUserNumber, "[ Ja ] " + messageContent);
             Console.WriteLine("Message passed to server.");
         }
 

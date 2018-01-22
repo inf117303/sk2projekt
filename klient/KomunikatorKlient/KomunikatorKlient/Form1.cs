@@ -138,6 +138,8 @@ namespace KomunikatorKlient
                 } else {
                     buttonRejestracja.Enabled = true;
                     labelUserStatus.Text = "niezarejestrowany";
+                    textBox1.Text = "";
+                    textBox1.Enabled = true;
                 }
 
                 if(!connectionActive) {
@@ -147,6 +149,8 @@ namespace KomunikatorKlient
                     buttonRozmowy.Enabled = false;
                     labelConnectionStatus.Text = "nieaktywne";
                     labelConnectionStatus.ForeColor = System.Drawing.Color.Red;
+                    textBox1.Text = "";
+                    textBox1.Enabled = true;
                 } else {
                     buttonPolacz.Enabled = false;
                     labelConnectionStatus.Text = "aktywne";
@@ -200,36 +204,59 @@ namespace KomunikatorKlient
                             int charLen = d.GetChars(buffer, 0, size, chars, 0);
                             string recv = new String(chars);
                             Komunikat komunikatSerwera = JsonConvert.DeserializeObject<Komunikat>(recv);
+                            //MessageBox.Show("DEBUG\nOdebrano komunikat serwera:\n" + recv);
                             if (komunikatSerwera.type == "registration_success") {
-                                userRegistered = true;
-                                userNumberText = komunikatSerwera.content;
-                                updateClientState();
-                                using (StreamWriter sw = File.CreateText("data.txt")) {
-                                    sw.WriteLine("registered");
-                                    sw.WriteLine(userNumberText);
-                                    sw.WriteLine(serverIP);
-                                    if (sw != null) {
-                                        sw.Close();
+                                if(userRegistered == false) {
+                                    userRegistered = true;
+                                    userNumberText = komunikatSerwera.content;
+                                    updateClientState();
+                                    using (StreamWriter sw = File.CreateText("data.txt")) {
+                                        sw.WriteLine("registered");
+                                        sw.WriteLine(userNumberText);
+                                        sw.WriteLine(serverIP);
+                                        if (sw != null) {
+                                            sw.Close();
+                                        }
                                     }
-                                }                                
-                                MessageBox.Show("Rejestracja udana.\nTwój nowy numer to: " + userNumberText);
-                            } else if (komunikatSerwera.type == "registration_failed") {
-                                MessageBox.Show("Rejestracja nieudana. Szczegóły błędu:\n" + komunikatSerwera.content);
-                            } else if(komunikatSerwera.type == "login_success") {
-                                setUserLoggedIn(true);
-                                updateClientState();
-                                MessageBox.Show("Logowanie udane.");
-                            } else if (komunikatSerwera.type == "login_failed") {
-                                setUserLoggedIn(false);
-                                updateClientState();
-                                MessageBox.Show("Logowanie nieudane. Upewnij się, że hasło jest wpisane poprawnie i spróbuj jeszcze raz.");
-                            } else if (komunikatSerwera.type == "message") {
-                                if(komunikatSerwera.sender == "0") {
-                                    MessageBox.Show("Wiadomość serwera\n:" + komunikatSerwera.content);
+                                    MessageBox.Show("Rejestracja udana.\nTwój nowy numer to: " + userNumberText);
                                 } else {
-                                    openConversationsWindow();
-                                    form3handle.parseIncomingMessage(komunikatSerwera.sender, komunikatSerwera.content);
+                                    Console.WriteLine("registration_success type erroneous directed data skipped, client already registered");
                                 }                                
+                            } else if (komunikatSerwera.type == "registration_failed") {
+                                if(userRegistered == false) {
+                                    MessageBox.Show("Rejestracja nieudana. Szczegóły błędu:\n" + komunikatSerwera.content);
+                                } else {
+                                    Console.WriteLine("registration_failed type erroneous directed data skipped, client already registered");
+                                }                                
+                            } else if(komunikatSerwera.type == "login_success") {
+                                if(komunikatSerwera.recipient == userNumberText) {
+                                    setUserLoggedIn(true);
+                                    updateClientState();
+                                    MessageBox.Show("Logowanie udane.");
+                                } else {
+                                    Console.WriteLine("login_succes type erroneous directed data skipped, wrong recipient");
+                                }                                
+                            } else if (komunikatSerwera.type == "login_failed") {
+                                if(komunikatSerwera.recipient == userNumberText) {
+                                    setUserLoggedIn(false);
+                                    updateClientState();
+                                    MessageBox.Show("Logowanie nieudane. Upewnij się, że hasło jest wpisane poprawnie i spróbuj jeszcze raz.");
+                                } else {
+                                    Console.WriteLine("login_failed type erroneous directed data skipped, wrong recipient");
+                                }                                
+                            } else if (komunikatSerwera.type == "message") {
+                                if(komunikatSerwera.recipient == userNumberText) {
+                                    if (komunikatSerwera.sender == "0") {
+                                        MessageBox.Show("Wiadomość serwera\n:" + komunikatSerwera.content);
+                                    } else {
+                                        openConversationsWindow();
+                                        form3handle.parseIncomingMessage(komunikatSerwera.sender, komunikatSerwera.content);
+                                    }
+                                } else {
+                                    Console.WriteLine("message type erroneous directed data skippe, wrong recipientd");
+                                }                                                            
+                            } else {
+                                Console.WriteLine("unsupported data type message skipped");
                             }
                         } else {
                             throw new SocketException(System.Convert.ToInt32(SocketError.ConnectionReset));
@@ -255,6 +282,7 @@ namespace KomunikatorKlient
                 socket1.Close();
                 Console.WriteLine("Thread stopped.");
             });
+            socketThread.IsBackground = true;
             socketThread.Start();
         }
 
