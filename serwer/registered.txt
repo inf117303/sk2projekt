@@ -1,1 +1,1 @@
-{"0":"0","1":"qwerty1","2":"qwerty2","3":"qwerty3","4":"qwerty3","5":"qwerty1","6":"qwerty1","7":"qwerty2","8":"komp2","9":"qwerty1","10":"qwerty2"}
+{"0":"0","1":"haslo2","2":"haslo1","3":"haslo2","4":"haslo1","5":"haslo2"}
