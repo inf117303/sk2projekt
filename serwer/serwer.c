@@ -14,7 +14,7 @@
 #include <json.h>
 #define SERVER_PORT 5501
 #define QUEUE_SIZE 10
-#define MAX_CLIENTS 10
+#define MAX_CLIENTS 100
 
 
 pthread_mutex_t lock;
@@ -25,6 +25,7 @@ struct thread_data_t {
  int *tab_deskr;
 };
 
+int deskrCounter;
 
 //Wypisuje wartosci przypisane do klucza
 void wypisywanieOgolne(json_object *jobj){
@@ -113,7 +114,7 @@ struct json_object * obsluzLogowanie(json_object * jobj){
 				json_object_to_file("logged_in.txt",jobjToFile);
 				json_object_put(jobjToFile);
 				//wypelnienie wiadomosci i jej zwrocenie
-				json_object_object_add(jobjReturn, "recipient", json_object_new_string(login));
+				json_object_object_add(jobjReturn, "recipient", json_object_object_get(jobj,"sender"));
 				json_object_object_add(jobjReturn, "sender", json_object_new_string("0"));
 				json_object_object_add(jobjReturn, "type", json_object_new_string("login_success"));
 				json_object_object_add(jobjReturn, "content", json_object_new_string("null"));
@@ -125,7 +126,7 @@ struct json_object * obsluzLogowanie(json_object * jobj){
 		}
 	}
 	//login lub haslo nie zgadzaja sie;
-	json_object_object_add(jobjReturn, "recipient", json_object_new_string(login));
+	json_object_object_add(jobjReturn, "recipient", json_object_object_get(jobj,"sender"));
 	json_object_object_add(jobjReturn, "sender", json_object_new_string("0"));
 	json_object_object_add(jobjReturn, "type", json_object_new_string("login_failed"));
 	json_object_object_add(jobjReturn, "content", json_object_new_string("wrong_login_or_password"));
@@ -149,7 +150,7 @@ struct json_object * obsluzWylogowanie(json_object * jobj){
 			if(strcmp(password,json_object_get_string(val)) == 0){
 				jobjToFile = json_object_new_object();
 				//wypelnienie wiadomosci i jej zwrocenie
-				json_object_object_add(jobjReturn, "recipient", json_object_new_string(login));
+				json_object_object_add(jobjReturn, "recipient", json_object_object_get(jobj,"sender"));
 				json_object_object_add(jobjReturn, "sender", json_object_new_string("0"));
 				json_object_object_add(jobjReturn, "type", json_object_new_string("logout_success"));
 				json_object_object_add(jobjReturn, "content", json_object_new_string("null"));
@@ -166,7 +167,7 @@ struct json_object * obsluzWylogowanie(json_object * jobj){
 		}
 	}
 	//login lub haslo nie zgadzaja sie;
-	json_object_object_add(jobjReturn, "recipient", json_object_new_string(login));
+	json_object_object_add(jobjReturn, "recipient", json_object_object_get(jobj,"sender"));
 	json_object_object_add(jobjReturn, "sender", json_object_new_string("0"));
 	json_object_object_add(jobjReturn, "type", json_object_new_string("logout_failed"));
 	json_object_object_add(jobjReturn, "content", json_object_new_string("wrong_login_or_password"));
@@ -259,7 +260,7 @@ void *ThreadBehavior(void *t_data)
     outcoming_jobj = json_object_new_object();
 
     char bufor[1024];
-    int rc;
+    int rc,i;
     int* tab_deskr = (*th_data).tab_deskr;
     printf("\nNew connection (descr.): %d\n", (*th_data).deskr);
     while(1) {
@@ -279,15 +280,17 @@ void *ThreadBehavior(void *t_data)
 
 			//odeslanie wiadomosci do klientow
 			//TODO nie do wszystkich, tylko do konkretnego
-			if(*(tab_deskr) != 0) {
-				write(*(tab_deskr), bufor, 1024);
-				printf("\n(sent to client %d): %s\n", *(tab_deskr), bufor);
+			for(i = 0; i <deskrCounter; i++){
+				if(*(tab_deskr)+i != 0) {
+					write((*tab_deskr)+i, bufor, 1024);
+					printf("\n(sent to client %d): %s\n", *(tab_deskr)+i, bufor);
+				}
 			}
 		memset(bufor,0,sizeof(bufor));
 
 		}
 		pthread_mutex_unlock(&lock);	
-		sleep(1);
+		sleep(10);
     }
 
     pthread_exit(NULL);
@@ -304,6 +307,7 @@ void handleConnection(int connection_socket_descriptor, int* tab_deskr) {
     struct thread_data_t *struktura1 = malloc(sizeof(struktura1));
     struktura1->deskr = connection_socket_descriptor;
     struktura1->tab_deskr = tab_deskr;
+    deskrCounter ++;
 
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void *)struktura1);
     if (create_result){
@@ -317,15 +321,22 @@ void handleConnection(int connection_socket_descriptor, int* tab_deskr) {
 
 int main(int argc, char* argv[])
 {
+   //czyszczenie pliku z logowaniem
+	struct json_object * jobj;
+	jobj = json_object_new_object();
+	json_object_object_add(jobj,"0",json_object_new_string("0"));
+	json_object_to_file("logged_in.txt",jobj);
+	json_object_put(jobj);
+
    int server_socket_descriptor;
    int connection_socket_descriptor;
    int bind_result;
    int listen_result;
    char reuse_addr_val = 1;
    struct sockaddr_in server_address;
-
    int client_count = 0;
    int descriptors[MAX_CLIENTS] = {0};
+   deskrCounter = 0;
 
    //inicjalizacja mutexa
      if (pthread_mutex_init(&lock, NULL) != 0)
